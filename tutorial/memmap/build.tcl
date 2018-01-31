@@ -72,54 +72,21 @@ if { $argc != 0 } {
     after 10000
 }
 
-# In order to compile the Block Diagram design (in a .tcl file) , we need to add
-# the directory containing the IP to the Vivado search path. This would be easy
-# if we could set the IP search path prior to opening Vivado - but we can't. 
-# So, we're gonna hack around it. We'll create a temporary file, modify it to
-# run the search path command and source that file instead. 
-#
-# In essence, the following lines search for:
-#
-# set design_name $target
-#
-# and replace it with:
-#
-# set design_name $target
-# set_property ip_repo_paths $ip_dirs [current_project]
-# update_ip_catalog
+create_project $target $target -part xc7z020clg400-1
+
+# In order to compile the Block Diagram design (in a .tcl file), we need to add
+# the directory containing the IP to the Vivado search path.
 #
 # All you need to do is modify ip_dirs to include your IP directory. This
 # variable is defined below:
+
+
 set ip_dirs "ip"
-
-# Create a temporary file (and delete any existing ones):
-set tempfile $target.ip.tcl
-file delete -force $tempfile
-
-# Open the original and the temporary
-set f [open $target.tcl]
-set ft [open $tempfile w]
-
-# Build the search string
-set cmd "set design_name $target"
-# Build the substitution string
-set sub ""
-append sub "$cmd\n"
-append sub "set_property ip_repo_paths $ip_dirs \[current_project\]\n"
-append sub "update_ip_catalog"
-
-# Perform the substitution (regsub) and write to the tempfile
-puts $ft [regsub $cmd [read $f] $sub]
-
-# Clean up
-close $f
-close $ft 
+set_property ip_repo_paths $ip_dirs [current_project]
+update_ip_catalog
 
 # Build the Vivado Block Diagram design
-source $tempfile
-
-# Delete the temporary file
-file delete -force $tempfile
+source $target.tcl
 
 # Additional steps: 
 # 1. Add top-level file
