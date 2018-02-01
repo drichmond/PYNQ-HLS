@@ -29,9 +29,9 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-DESIGN=memmap
+DESIGN=stream
 all:
-	vivado -mode batch -source memmap.tcl -tclargs $(DESIGN) single
+	vivado -mode batch -source build.tcl -tclargs $(DESIGN) single
 
 clean:
 	rm -rf $(DESIGN) *.jou *.log *.str

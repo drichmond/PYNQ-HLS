@@ -1088,12 +1088,11 @@ CONFIG.PCW_WDT_WDT_IO {<Select>} \
   connect_bd_net -net hlsDmaEngine_s2mm_introut [get_bd_pins hlsDmaEngine/s2mm_introut] [get_bd_pins irqConcat/In1]
   connect_bd_net -net irqConcat_dout [get_bd_pins irqConcat/dout] [get_bd_pins plInterruptController/intr]
   connect_bd_net -net plInterruptController_irq [get_bd_pins plInterruptController/irq] [get_bd_pins processing_system7_0/IRQ_F2P]
-  connect_bd_net -net porReset_interconnect_aresetn [get_bd_pins dmaInterconnect/M00_ARESETN] [get_bd_pins dmaInterconnect/S00_ARESETN] [get_bd_pins mmioInterconnect/ARESETN] [get_bd_pins porReset/interconnect_aresetn]
-  connect_bd_net -net porReset_peripheral_aresetn [get_bd_pins hlsDmaEngine/axi_resetn] [get_bd_pins mmioInterconnect/M01_ARESETN] [get_bd_pins mmioInterconnect/M02_ARESETN] [get_bd_pins mmioInterconnect/S00_ARESETN] [get_bd_pins plInterruptController/s_axi_aresetn] [get_bd_pins porReset/peripheral_aresetn]
+  connect_bd_net -net porReset_interconnect_aresetn [get_bd_pins dmaInterconnect/ARESETN] [get_bd_pins mmioInterconnect/ARESETN] [get_bd_pins porReset/interconnect_aresetn]
+  connect_bd_net -net porReset_peripheral_aresetn [get_bd_pins dmaInterconnect/M00_ARESETN] [get_bd_pins dmaInterconnect/S00_ARESETN] [get_bd_pins hlsDmaEngine/axi_resetn] [get_bd_pins mmioInterconnect/M01_ARESETN] [get_bd_pins mmioInterconnect/M02_ARESETN] [get_bd_pins mmioInterconnect/S00_ARESETN] [get_bd_pins plInterruptController/s_axi_aresetn] [get_bd_pins porReset/peripheral_aresetn]
   connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/S_AXI_HP2_ACLK]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins porReset/ext_reset_in] [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins userReset/aux_reset_in]
   connect_bd_net -net processing_system7_0_GPIO_O [get_bd_pins processing_system7_0/GPIO_O] [get_bd_pins userReset/ext_reset_in]
-  connect_bd_net -net userReset_interconnect_aresetn [get_bd_pins dmaInterconnect/ARESETN] [get_bd_pins userReset/interconnect_aresetn]
   connect_bd_net -net userReset_peripheral_aresetn [get_bd_pins filt1d/ap_rst_n] [get_bd_pins mmioInterconnect/M00_ARESETN] [get_bd_pins userReset/peripheral_aresetn]
 
   # Create address segments
