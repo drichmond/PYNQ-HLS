@@ -3,8 +3,13 @@
 
 #define C_NUM_COEFF 9
 #include "ap_int.h"
-#include "ap_axi_sdata.h"
-void filt1d(int *INPUT, int *OUTPUT,
+
+struct axis_t {
+	int data;
+	ap_int<1> last;
+};
+
+void filt1d(axis_t *INPUT, axis_t *OUTPUT,
 		int coeff[C_NUM_COEFF], unsigned int length);
 
 #endif

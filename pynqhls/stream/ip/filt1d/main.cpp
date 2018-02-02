@@ -15,15 +15,16 @@ int main(){
 	int window[C_NUM_COEFF] = {0};
 	int coeffs[C_NUM_COEFF] = {-4, -3, -2, -1, 0, 1, 2, 3, 4};
 	int sum;
-	int in[LENGTH];
-	int out[LENGTH];
+	axis_t in[LENGTH];
+	axis_t out[LENGTH];
 	
 	for(unsigned int i = 0; i < LENGTH; ++i){
 		int rn = distribution(generator);
 		input[i] = rn;
-		in[i] = rn;
+		in[i].data = rn;
 	}
-	
+	in[LENGTH-1].last = 1;
+
 	for(unsigned int i = 0; i < LENGTH; ++i){
 		sum = 0;
 		for(unsigned int wi = C_NUM_COEFF-1; wi > 0; --wi){
@@ -39,9 +40,8 @@ int main(){
 	filt1d(in, out, coeffs, LENGTH);
 	
 	for(unsigned int i = 0; i < LENGTH; ++i){
-		printf("Soln: %d, Result: %d\n", soln[i], out[i]);
-		if(soln[i] != out[i]){
-			printf("Error! Incorrect result on index %u. Soln: %d, Result: %d\n", i, soln[i], out[i]);
+		if(soln[i] != out[i].data){
+			printf("Error! Incorrect result on index %u. Soln: %d, Result: %d\n", i, soln[i], out[i].data);
 			return -1;
 		}
 	}
