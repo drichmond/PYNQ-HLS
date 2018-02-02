@@ -13,8 +13,10 @@ class streamOverlay(Overlay):
     __RESET_VALUE = 0
     __NRESET_VALUE = 1
 
-    """For convenince, we define a few offsets that are scraped from the
-    filt1d implementation header files."""
+    """For convenince, we define register offsets that are scraped from
+    the filt1d implementation header files.
+
+    """
     __FILT1D_AP_CTRL_OFF = 0x00
     __FILT1D_AP_CTRL_START_IDX = 0
     __FILT1D_AP_CTRL_DONE_IDX  = 1
@@ -27,7 +29,7 @@ class streamOverlay(Overlay):
     __FILT1D_COEFF_OFFS  = [0x10, 0x18,	0x20, 0x28,
                             0x30, 0x38,	0x40, 0x48,
                             0x50]
-    __FILT1D_LENGTH_OFF  = 0x54
+    __FILT1D_LENGTH_OFF  = 0x58
     def __init__(self, bitfile, **kwargs):
         """Initializes a new streamOverlay object.
 
@@ -57,11 +59,16 @@ class streamOverlay(Overlay):
         self.xlnk = Xlnk()
         
     def __start(self):
-        """Toggle AP_START and enable the HLS core
+        """Raise AP_START and enable the HLS core
 
         """
-        self.__ap_ctrl[self.__FILT1D_AP_CTRL_START_IDX] = 0
         self.__ap_ctrl[self.__FILT1D_AP_CTRL_START_IDX] = 1
+        pass
+
+    def __stop(self):
+        """Lower AP_START and disable the HLS core
+
+        """
         self.__ap_ctrl[self.__FILT1D_AP_CTRL_START_IDX] = 0
         pass
 
@@ -85,47 +92,68 @@ class streamOverlay(Overlay):
         Parameters
         ----------
         coeffs: list
-            An xlnk allocated buffer to be transferred to the core
+            A 9-element python list to transfer to the HLS Core for use
+        as filter coefficients.
     
         buf : list
             An xlnk allocated buffer to be transferred to the core
         """
+        # -------------------- Part 1: --------------------
+        # Drop reset, and readying the core for use
         self.nreset()
-        print("Not in reset!")
-        self.__load(coeffs)
-        print("Loaded coefficients!")        
-        self.filt1d.write(self.__FILT1D_LENGTH_OFF, len(buf))
-        print("Wrote Length!") 
+        # Load the coefficients and length into the core registers
         l = len(buf)
-        cmabuf_src = self.xlnk.cma_array([l, 1], np.int32)
+        self.__load(coeffs, l)
+
+        # Create a source contiguous array for the DMA Engine and fill it with data
+        cmabuf_src = self.xlnk.cma_array([l], np.int32)
         for i in range(l):
             cmabuf_src[i] = buf[i]
-        print("Allocated Source CMA Array")
-        cmabuf_dest = self.xlnk.cma_array([l, 1], np.int32)
-        print("Allocated Destination CMA Array")
 
+        # Create a destination contiguous array for the DMA Engine
+        cmabuf_dest = self.xlnk.cma_array([l], np.int32)
+
+        # -------------------- Part 2: --------------------
+        # Initiate a transaction on the recieve channel (FPGA -> ARM) of the DMA engine
         self.hlsDmaEngine.recvchannel.transfer(cmabuf_dest)
-        print("Started Transmit")        
+
+        # Initiate a transaction on the transmit channel (ARM -> FPGA) of the DMA engine
         self.hlsDmaEngine.sendchannel.transfer(cmabuf_src)
-        print("Started Send")
-        self.__ap_ctrl[self.__FILT1D_AP_CTRL_START_IDX] = 1
 
+        # Raise the AP_START bit of AP_CTRL to initiate computation
         self.__start()
-        print("Pulsed Start!")        
 
+        # Wait for the DMA engines to finish
         self.hlsDmaEngine.sendchannel.wait()
-        print("Finished Send")
         self.hlsDmaEngine.recvchannel.wait()
-        print("Finished recv")        
-        self.__ap_ctrl[self.__FILT1D_AP_CTRL_START_IDX] = 0
 
+        # Lower the AP_START bit of AP_CTRL to terminate computation
+        self.__stop()
+
+        # -------------------- Part 3: --------------------
+        # Get the filtered signal as a python list from the destination DMA buffer
         buf = cmabuf_dest.tolist()
+        
+        # Free both buffers for reuse
         cmabuf_dest.freebuffer()
         cmabuf_src.freebuffer()
+
+        # Return the filtered signal
         return buf
 
-    def __load(self, coeffs):
-        """ Load the filter coefficients into the HLS core """
+    def __load(self, coeffs, leng):
+        """ Load the filter coefficients and signal length into the HLS core 
+
+        Parameters
+        ----------
+        coeffs : list
+            A list of coefficients to load into the core filter registers.
+    
+        leng : int
+            The length of the signal to perform a filtering operation on
+
+        """
         for (offset, coeff) in zip(self.__FILT1D_COEFF_OFFS, coeffs):
             self.filt1d.write(offset, coeff)
-                                   
+
+        self.filt1d.write(self.__FILT1D_LENGTH_OFF, leng)                        
