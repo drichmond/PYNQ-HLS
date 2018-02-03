@@ -49,7 +49,19 @@ pictures_src = os.path.join(tutorials_src, 'pictures')
 pictures_dest = os.path.join(tutorials_dest, 'pictures')
 pictures = [os.path.join(pictures_src, f) for f in os.listdir(pictures_src)]
 
+# Find all of the stream notebooks in the stream_src path
+stream_src = 'pynqhls/stream/notebooks/'
+stream_dest = os.path.join(jupyter_dest, 'HLS-Stream')
+stream = [os.path.join(stream_src, f)
+             for f in os.listdir(stream_src)]
+
+# Find all of the tutorial notebook pictures in the pictures_src path
+stream_pictures_src = os.path.join(stream_src, 'pictures')
+stream_pictures_dest = os.path.join(stream_dest, 'pictures')
+stream_pictures = [os.path.join(stream_pictures_src, f) for f in os.listdir(stream_pictures_src)]
+
 tutorials.remove(pictures_src)
+stream.remove(stream_pictures_src)
 
 setup(name='pynq-hls',
       version='0.1',
@@ -60,8 +72,10 @@ setup(name='pynq-hls',
       url='https://github.com/drichmond/PYNQ-HLS/',
       license='BSD-3',
       data_files = [(tutorials_dest, tutorials),
-                    (pictures_dest, pictures)],
-      packages=['pynqhls'],
+                    (pictures_dest, pictures),
+                    (stream_dest, stream),
+                    (stream_pictures_dest, stream_pictures)],
+      packages=['pynqhls', 'pynqhls.stream', 'pynqhls.memmap'],
       package_data={'':['*.bit', '*.tcl']},
       install_requires=['pynq'],
       dependency_links=['http://github.com/xilinx/PYNQ.git@v2.0#egg=pynq'],
