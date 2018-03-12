@@ -12,7 +12,7 @@ void count_leds(ap_uint<4>& leds){
 #define MSEC_PER_SEC (1000)
 template <unsigned int MSEC>
 void delay_until_ms(){
-	const unsigned int ctr = F_OVERLAY_HZ / (MSEC_PER_SEC) * MSEC;
+	const unsigned int ctr = (F_OVERLAY_HZ*MSEC / (MSEC_PER_SEC));
 	for (unsigned int i = 1; i < ctr; ++i){
 #pragma HLS PIPELINE
 		ap_wait();
@@ -25,7 +25,7 @@ void io(const ap_uint<32> mem [MEM_SPACE_SIZE],
 	ap_uint<4>& leds){
 /* Define a new AXI-Lite bus named CTRL for HLS Status/Control registers
    (return), and for the register space*/
-#pragma HLS INTERFACE m_axi port=mem offset=slave bundle=MEM1
+#pragma HLS INTERFACE m_axi port=mem offset=slave bundle=MEM
 #pragma HLS INTERFACE s_axilite port=return bundle=CTRL
 #pragma HLS INTERFACE s_axilite port=reg    bundle=CTRL offset = 0x1
 #pragma HLS INTERFACE ap_none port=leds
