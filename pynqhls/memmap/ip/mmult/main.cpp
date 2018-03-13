@@ -16,7 +16,7 @@ int main(){
 
 	// Generate some randomness
 	std::default_random_engine generator;
-	std::uniform_real_distribution<float> distribution(RN_MIN,RN_MAX);
+	std::uniform_int_distribution<int> distribution(RN_MIN,RN_MAX);
 
 	// Generate Matrix A from a uniform real distribution
 	for(unsigned int i = 0; i < A_ROWS; ++i){

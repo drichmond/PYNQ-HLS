@@ -5,9 +5,9 @@
 
 // Matrix Definitions:
 //     Types for A (mata_t), B (matb_t), and C (matc_t)
-typedef float mata_t;
-typedef float matb_t;
-typedef float matc_t;
+typedef ap_int<32> mata_t;
+typedef ap_int<32> matb_t;
+typedef ap_int<32> matc_t;
 // Dimensions for A and B (which determine C)
 #define A_ROWS 100
 #define A_COLS 100
