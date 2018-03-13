@@ -7,16 +7,23 @@ void check_buttons(const ap_uint<4>& buttons, ap_uint<32>& reg){
 
 void count_leds(ap_uint<4>& leds){
 	static ap_uint<4> state;
+#pragma HLS reset variable=state
 	leds = ++state;
 }
-#define MSEC_PER_SEC (1000)
-template <unsigned int MSEC>
-void delay_until_ms(){
-	const unsigned int ctr = (F_OVERLAY_HZ*MSEC / (MSEC_PER_SEC));
-	for (unsigned int i = 0; i < F_OVERLAY_HZ; ++i){
-#pragma HLS PIPELINE
-		ap_wait();
+
+template <unsigned int MILLISECONDS>
+char delay_until_ms(){
+#pragma HLS INLINE
+	volatile char dummy;
+	{
+#pragma HLS PROTOCOL floating
+		ap_uint<64> i;
+		ap_uint<64> ctr = (F_OVERLAY_HZ * MILLISECONDS / MSEC_PER_SEC);
+		for (i = 0; i < ctr; ++i){
+			dummy = dummy;
+		}
 	}
+	return dummy;
 }
 
 void io(const ap_uint<32> mem [MEM_SPACE_SIZE],
@@ -27,10 +34,12 @@ void io(const ap_uint<32> mem [MEM_SPACE_SIZE],
    (return), and for the register space*/
 #pragma HLS INTERFACE m_axi port=mem offset=slave bundle=MEM
 #pragma HLS INTERFACE s_axilite port=return bundle=CTRL
-#pragma HLS INTERFACE s_axilite port=reg    bundle=CTRL offset=0x1
+#pragma HLS INTERFACE s_axilite port=reg    bundle=CTRL
 #pragma HLS INTERFACE ap_none port=leds
-#pragma HLS DATAFLOW
+
+
 	check_buttons(buttons, reg[1]);
 	count_leds(leds);
-	delay_until_ms<1000>();
+	delay_until_ms<1000>();	
+	return;
 }
