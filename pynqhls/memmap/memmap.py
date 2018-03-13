@@ -1,4 +1,4 @@
-from pynq import Overlay, GPIO, Register
+from pynq import Overlay, GPIO, Register, Xlnk
 import os
 import inspect
 import numpy as np
@@ -34,8 +34,8 @@ class memmapOverlay(Overlay):
     __MMULT_BT_SHAPE = (100, 100)
     __MMULT_C_SHAPE = (100, 100)
     __MMULT_A_SIZE = __MMULT_A_SHAPE[0] * __MMULT_A_SHAPE[1]
-    __MMULT_A_SIZE = __MMULT_BT_SHAPE[0] * __MMULT_BT_SHAPE[1]
-    __MMULT_A_SIZE = __MMULT_C_SHAPE[0] * __MMULT_C_SHAPE[1]
+    __MMULT_BT_SIZE = __MMULT_BT_SHAPE[0] * __MMULT_BT_SHAPE[1]
+    __MMULT_C_SIZE = __MMULT_C_SHAPE[0] * __MMULT_C_SHAPE[1]
     
 
     def __init__(self, bitfile, **kwargs):
@@ -60,16 +60,17 @@ class memmapOverlay(Overlay):
         super().__init__(bitfile, **kwargs)
         # Manually define the GPIO pin that drives reset
         self.__resetPin = GPIO(GPIO.get_gpio_pin(0), "out")
+        self.nreset()
         # Define a Register object at address 0x0 of the mmult address space
         # We will use this to set bits and start the core (see start())
         # Do NOT write to __ap_ctrl unless __resetPin has been set to __NRESET_VALUE
-        self.__ap_ctrl = Register(self.mmult.mmio.base_addr, 32)
-        self.__a_offset = Register(self.mmult.mmio.base_addr +
-                                       __MMULT_ADDR_A_DATA, 32)
-        self.__bt_offset = Register(self.mmult.mmio.base_addr +
-                                       __MMULT_ADDR_BT_DATA, 32)
-        self.__c_offset = Register(self.mmult.mmio.base_addr +
-                                       __MMULT_ADDR_C_DATA, 32)
+        self.__ap_ctrl = Register(self.mmultCore.mmio.base_addr, 32)
+        self.__a_offset = Register(self.mmultCore.mmio.base_addr +
+                                       self.__MMULT_ADDR_A_DATA, 32)
+        self.__bt_offset = Register(self.mmultCore.mmio.base_addr +
+                                       self.__MMULT_ADDR_BT_DATA, 32)
+        self.__c_offset = Register(self.mmultCore.mmio.base_addr +
+                                       self.__MMULT_ADDR_C_DATA, 32)
         self.xlnk = Xlnk()
 
     def __start(self):
@@ -113,52 +114,52 @@ class memmapOverlay(Overlay):
             A buffer containing ND Array Elements to be transferred to the core
 
         """
-        if(not instanceof(np.ndarray, A)):
+        if(not isinstance(A, np.ndarray)):
             raise TypeError("Parameter A must be an instance of "
                                    "numpy.ndarray")
 
-        if(not instanceof(np.ndarray, B)):
+        if(not isinstance(B, np.ndarray)):
             raise RuntimeError("Parameter B must be an instance of "
                                    "numpy.ndarray")
         sza = A.shape
         if(sza[0] > self.__MMULT_A_SHAPE[0]):
-            raise RuntimeError("Dimension 0 of A must be less than or equal to"
-                                   f"{self.__MMULT_A_SHAPE[0]")
+            raise RuntimeError(f"Dimension 0 of A must be less than or equal to"
+                                   f"{self.__MMULT_A_SHAPE[0]}")
         if(sza[1] > self.__MMULT_A_SHAPE[1]):
-            raise RuntimeError("Dimension 1 of A must be less than or equal to"
-                                   f"{self.__MMULT_A_SHAPE[1]")
+            raise RuntimeError(f"Dimension 1 of A must be less than or equal to"
+                                   f"{self.__MMULT_A_SHAPE[1]}")
 
         szb = B.shape
         if(szb[0] > self.__MMULT_BT_SHAPE[1]):
-            raise RuntimeError("Dimension 0 of B must be less than or equal to"
-                                   f"{self.__MMULT_BT_SHAPE[0]")
+            raise RuntimeError(f"Dimension 0 of B must be less than or equal to"
+                                   f"{self.__MMULT_BT_SHAPE[0]}")
         if(szb[1] > self.__MMULT_BT_SHAPE[0]):
-            raise RuntimeError("Dimension 1 of B must be less than or equal to"
-                                   f"{self.__MMULT_BT_SHAPE[1]")
+            raise RuntimeError(f"Dimension 1 of B must be less than or equal to"
+                                   f"{self.__MMULT_BT_SHAPE[1]}")
 
 
         # Check size of A
         # Check size of B
-        # Transpose B
-        BT = B.transpose()
         # Allocate C
-        a = self.xlnk.cma_array(self.__MMULT_A_SHAPE, np.float)
-        bt = self.xlnk.cma_array(self.__MMULT_B_SHAPE, np.float)
-        c = self.xlnk.cma_array(self.__MMULT_C_SHAPE, np.float)
-        
+        a = self.xlnk.cma_array(self.__MMULT_A_SHAPE, "int")
+        bt = self.xlnk.cma_array(self.__MMULT_BT_SHAPE, "int")
+        c = self.xlnk.cma_array(self.__MMULT_C_SHAPE, "int")
         # Copy A->a
-        # Copy B->b
-
-
-        self.__resetPin.write(self.__NRESET_VALUE)
-        # Enable Interrupts
+        a[:A.shape[0], :A.shape[1]] = A
+        # Copy BT->bt
+        bt[:B.shape[1], :B.shape[0]] = B.transpose()
+        # TODO: Enable Interrupts
         # Write address of a, bt, c to HLS core
-        self.__a_offset[31:0]  = self.xlnk.cma_get_phy_addr(a)
-        self.__bt_offset[31:0] = self.xlnk.cma_get_phy_addr(bt)
-        self.__c_offset[31:0]  = self.xlnk.cma_get_phy_addr(c)
+        self.__a_offset[31:0]  = self.xlnk.cma_get_phy_addr(a.pointer)
+        self.__bt_offset[31:0] = self.xlnk.cma_get_phy_addr(bt.pointer)
+        self.__c_offset[31:0]  = self.xlnk.cma_get_phy_addr(c.pointer)
         self.__start()
-        # Wait for ASYNC Interrupt
-        # Clear Interrupt
+        # TODO: Wait for ASYNC Interrupt
+        # TODO: Clear Interrupt
+        import time
+        time.sleep(1)
         self.__stop()
+        C = np.zeros((A.shape[0], B.shape[1]), np.int32)
         # Transform C into a Numpy Array
+        C[:A.shape[0], :B.shape[1]] = c[:A.shape[0], :B.shape[1]]
         return C

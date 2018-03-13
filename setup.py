@@ -66,6 +66,12 @@ io_dest = os.path.join(jupyter_dest, 'HLS-IO')
 io = [os.path.join(io_src, f)
              for f in os.listdir(io_src)]
 
+# Find all of the memmap notebooks in the memmap_src path
+memmap_src = 'pynqhls/memmap/notebooks/'
+memmap_dest = os.path.join(jupyter_dest, 'HLS-Memmap')
+memmap = [os.path.join(memmap_src, f)
+             for f in os.listdir(memmap_src)]
+
 tutorials.remove(pictures_src)
 stream.remove(stream_pictures_src)
 
@@ -82,7 +88,7 @@ setup(name='pynq-hls',
                     (stream_dest, stream),
                     (io_dest, io),
                     (stream_pictures_dest, stream_pictures)],
-      packages=['pynqhls', 'pynqhls.stream', 'pynqhls.io'],
+      packages=['pynqhls', 'pynqhls.stream', 'pynqhls.io', 'pynqhls.memmap'],
       package_data={'':['*.bit', '*.tcl']},
       install_requires=['pynq'],
       dependency_links=['http://github.com/xilinx/PYNQ.git@v2.0#egg=pynq'],
