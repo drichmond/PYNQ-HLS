@@ -9,7 +9,7 @@
 #define F_OVERLAY_HZ 50000000ULL
 #define MSEC_PER_SEC 1000
 
-char io(const ap_uint<32> mem [MEM_SPACE_SIZE],
+void io(const ap_uint<32> mem [MEM_SPACE_SIZE],
 	ap_uint<32> reg[REG_SPACE_SIZE],
 	const ap_uint<4> buttons,
 	ap_uint<4>* leds);

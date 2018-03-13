@@ -12,18 +12,16 @@ void count_leds(ap_uint<4>& leds){
 }
 
 template <unsigned int MILLISECONDS>
-char delay_until_ms(){
+void delay_until_ms(){
 #pragma HLS INLINE
-	volatile char dummy;
-	{
 #pragma HLS PROTOCOL floating
-		ap_uint<64> i;
-		ap_uint<64> ctr = (F_OVERLAY_HZ * MILLISECONDS / MSEC_PER_SEC);
-		for (i = 0; i < ctr; ++i){
-			dummy = dummy;
-		}
+	volatile char dummy;
+	ap_uint<64> ctr;
+	ap_uint<64> cyc = (F_OVERLAY_HZ * MILLISECONDS / MSEC_PER_SEC);
+	for (ctr = 0; ctr < cyc; ++ctr){
+		dummy = dummy;
 	}
-	return dummy;
+	return;
 }
 
 void io(const ap_uint<32> mem [MEM_SPACE_SIZE],
