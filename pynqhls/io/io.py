@@ -27,6 +27,11 @@ class ioOverlay(Overlay):
     __IO_IER_OFF     = 0x08
     __IO_ISR_OFF     = 0x0C
     
+    """These define the 'reg' argument to the 'io' HLS function.  The
+    memory space defined here is shared between the HLS core and the
+    ARM PS.
+
+    """
     __IO_REG_OFF = 0x200
     __IO_REG_LEN = 0x100
     def __init__(self, bitfile, **kwargs):
@@ -54,10 +59,10 @@ class ioOverlay(Overlay):
         # Define a Register object at address 0x0 of the IO address space
         # We will use this to set bits and start the core (see start())
         # Do NOT write to __ap_ctrl unless __resetPin has been set to __NRESET_VALUE
-        self.__ap_ctrl = Register(self.io.mmio.base_addr, 32)
-        self.__hls_reg = MMIO(self.io.mmio.base_addr + self.__IO_REG_OFF,
-                                  self.__IO_REG_LEN)
-        self.xlnk = Xlnk()
+        self.nreset()
+        self.__ap_ctrl = Register(self.ioCore.mmio.base_addr, 32)
+        self.__hls_reg = MMIO(self.ioCore.mmio.base_addr + self.__IO_REG_OFF,
+                              self.__IO_REG_LEN)
 
     def __set_autorestart(self):
         """ Set the autorestart bit of the HLS core
@@ -96,7 +101,6 @@ class ioOverlay(Overlay):
         self.__resetPin.write(self.__RESET_VALUE)
 
     def launch(self):
-        self.nreset()
         self.__set_autorestart()
         self.__start()
         
@@ -105,10 +109,16 @@ class ioOverlay(Overlay):
         while(not self.__ap_ctrl[self.__IO_AP_CTRL_DONE_IDX]):
             pass
         self.__stop()
-        self.reset()
 
     def run(self):
         """ Launch computation on the io HLS core
-
+        
+        Returns
+        -------
+        The 4-bit value representing the value of the buttons.
+        
         """
-        return self.__hls_reg.read(0)
+        self.__start()
+        while(not self.__ap_ctrl[self.__IO_AP_CTRL_DONE_IDX]):
+            pass
+        return self.__hls_reg.read(4)

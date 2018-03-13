@@ -60,6 +60,12 @@ stream_pictures_src = os.path.join(stream_src, 'pictures')
 stream_pictures_dest = os.path.join(stream_dest, 'pictures')
 stream_pictures = [os.path.join(stream_pictures_src, f) for f in os.listdir(stream_pictures_src)]
 
+# Find all of the io notebooks in the io_src path
+io_src = 'pynqhls/io/notebooks/'
+io_dest = os.path.join(jupyter_dest, 'HLS-IO')
+io = [os.path.join(io_src, f)
+             for f in os.listdir(io_src)]
+
 tutorials.remove(pictures_src)
 stream.remove(stream_pictures_src)
 
@@ -74,8 +80,9 @@ setup(name='pynq-hls',
       data_files = [(tutorials_dest, tutorials),
                     (pictures_dest, pictures),
                     (stream_dest, stream),
+                    (io_dest, io),
                     (stream_pictures_dest, stream_pictures)],
-      packages=['pynqhls', 'pynqhls.stream'],
+      packages=['pynqhls', 'pynqhls.stream', 'pynqhls.io'],
       package_data={'':['*.bit', '*.tcl']},
       install_requires=['pynq'],
       dependency_links=['http://github.com/xilinx/PYNQ.git@v2.0#egg=pynq'],
