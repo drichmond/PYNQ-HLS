@@ -164,7 +164,7 @@ module top(
         end
     endgenerate
 
-    memmap memmap_i
+    shared shared_i
          (
         .DDR_addr(DDR_addr),
         .DDR_ba(DDR_ba),

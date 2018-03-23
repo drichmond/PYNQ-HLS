@@ -2,7 +2,7 @@ from pynq import Overlay, GPIO, Register, Xlnk
 import os
 import inspect
 import numpy as np
-class memmapOverlay(Overlay):
+class sharedOverlay(Overlay):
     """A simple Mem-Mapped Overlay for PYNQ.
 
     This overlay is implemented with a single Matrix Multiply Core fed
@@ -39,20 +39,20 @@ class memmapOverlay(Overlay):
     
 
     def __init__(self, bitfile, **kwargs):
-        """Initializes a new memmapOverlay object.
+        """Initializes a new sharedOverlay object.
 
         """
         # The following lines do some path searching to enable a 
         # PYNQ-Like API for Overlays. For example, without these 
-        # lines you cannot call memmapOverlay('memmap.bit') because 
-        # memmap.bit is not on the bitstream search path. The 
+        # lines you cannot call sharedOverlay('shared.bit') because 
+        # shared.bit is not on the bitstream search path. The 
         # following lines fix this for any non-PYNQ Overlay
         #
         # You can safely reuse, and ignore the following lines
         #
-        # Get file path of the current class (i.e. /opt/python3.6/<...>/memmap.py)
+        # Get file path of the current class (i.e. /opt/python3.6/<...>/shared.py)
         file_path = os.path.abspath(inspect.getfile(inspect.currentframe()))
-        # Get directory path of the current class (i.e. /opt/python3.6/<...>/memmap/)
+        # Get directory path of the current class (i.e. /opt/python3.6/<...>/shared/)
         dir_path = os.path.dirname(file_path)
         # Update the bitfile path to search in dir_path
         bitfile = os.path.join(dir_path, bitfile)

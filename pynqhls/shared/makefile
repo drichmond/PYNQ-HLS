@@ -29,7 +29,7 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-DESIGN=memmap
+DESIGN=shared
 all:
 	vivado -mode batch -source build.tcl -tclargs $(DESIGN) single
 

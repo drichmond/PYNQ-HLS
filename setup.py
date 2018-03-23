@@ -37,44 +37,39 @@ from setuptools import setup
 import os
 
 jupyter_dest = '/home/xilinx/jupyter_notebooks'
+tutorials = ["stream", "shared", "io"]
 
-# Find all of the tutorial notebooks in the tutorials_src path
-tutorials_src = 'tutorial/notebooks/'
-tutorials_dest = os.path.join(jupyter_dest, 'HLS-Tutorial')
-tutorials = [os.path.join(tutorials_src, f)
-             for f in os.listdir(tutorials_src)]
+# Find all of the tutorial notebooks in the tutorials_base path
+tutorials_base = 'tutorial/notebooks/'
+tutorials_dest_base = os.path.join(jupyter_dest, 'HLS-Tutorial')
 
-# Find all of the tutorial notebook pictures in the pictures_src path
-pictures_src = os.path.join(tutorials_src, 'pictures')
-pictures_dest = os.path.join(tutorials_dest, 'pictures')
-pictures = [os.path.join(pictures_src, f) for f in os.listdir(pictures_src)]
+data_files = []
+for tut in tutorials:
+    nbsource = os.path.join(tutorials_base, tut)
+    notebooks = [os.path.join(nbsource, f) for f in os.listdir(nbsource)]
+    nbdest = os.path.join(tutorials_dest_base, tut)
+    picsource = os.path.join(nbsource, 'pictures')
+    pictures = [os.path.join(picsource, f) for f in os.listdir(picsource)]
+    picdest = os.path.join(nbdest, 'pictures')
+    notebooks.remove(picsource)
+    data_files.append((nbdest, notebooks))
+    data_files.append((picdest, pictures))
 
-# Find all of the stream notebooks in the stream_src path
-stream_src = 'pynqhls/stream/notebooks/'
-stream_dest = os.path.join(jupyter_dest, 'HLS-Stream')
-stream = [os.path.join(stream_src, f)
-             for f in os.listdir(stream_src)]
+demo_base = 'pynqhls/'
+demo_dest_base = os.path.join(jupyter_dest, 'HLS-Demo')
 
-# Find all of the tutorial notebook pictures in the pictures_src path
-stream_pictures_src = os.path.join(stream_src, 'pictures')
-stream_pictures_dest = os.path.join(stream_dest, 'pictures')
-stream_pictures = [os.path.join(stream_pictures_src, f) for f in os.listdir(stream_pictures_src)]
+for tut in tutorials:
+    nbsource = os.path.join(demo_base, tut, 'notebooks')
+    notebooks = [os.path.join(nbsource, f) for f in os.listdir(nbsource)]
+    nbdest = os.path.join(demo_dest_base, tut)
+    picsource = os.path.join(nbsource, 'pictures')
+    pictures = [os.path.join(picsource, f) for f in os.listdir(picsource)]
+    picdest = os.path.join(nbdest, 'pictures')
+    notebooks.remove(picsource)
+    data_files.append((nbdest, notebooks))
+    data_files.append((picdest, pictures))
 
-# Find all of the io notebooks in the io_src path
-io_src = 'pynqhls/io/notebooks/'
-io_dest = os.path.join(jupyter_dest, 'HLS-IO')
-io = [os.path.join(io_src, f)
-             for f in os.listdir(io_src)]
-
-# Find all of the memmap notebooks in the memmap_src path
-memmap_src = 'pynqhls/memmap/notebooks/'
-memmap_dest = os.path.join(jupyter_dest, 'HLS-Memmap')
-memmap = [os.path.join(memmap_src, f)
-             for f in os.listdir(memmap_src)]
-
-tutorials.remove(pictures_src)
-stream.remove(stream_pictures_src)
-
+print(data_files)
 setup(name='pynq-hls',
       version='0.1',
       description="A simple package describing how to create a PYNQ\
@@ -83,12 +78,8 @@ setup(name='pynq-hls',
       author_email='drichmond@eng.ucsd.edu',
       url='https://github.com/drichmond/PYNQ-HLS/',
       license='BSD-3',
-      data_files = [(tutorials_dest, tutorials),
-                    (pictures_dest, pictures),
-                    (stream_dest, stream),
-                    (io_dest, io),
-                    (stream_pictures_dest, stream_pictures)],
-      packages=['pynqhls', 'pynqhls.stream', 'pynqhls.io', 'pynqhls.memmap'],
+      data_files = data_files,
+      packages=['pynqhls', 'pynqhls.stream', 'pynqhls.io', 'pynqhls.shared'],
       package_data={'':['*.bit', '*.tcl']},
       install_requires=['pynq'],
       dependency_links=['http://github.com/xilinx/PYNQ.git@v2.0#egg=pynq'],
