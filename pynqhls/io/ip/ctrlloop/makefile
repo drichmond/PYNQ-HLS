@@ -1,4 +1,4 @@
-TARGET=io
+TARGET=ctrlloop
 
 all: $(TARGET)
 

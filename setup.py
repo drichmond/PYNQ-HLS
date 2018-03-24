@@ -37,7 +37,7 @@ from setuptools import setup
 import os
 
 jupyter_dest = '/home/xilinx/jupyter_notebooks'
-tutorials = ["stream", "shared", "io"]
+tutorials = ["stream", "sharedmem", "io"]
 
 # Find all of the tutorial notebooks in the tutorials_base path
 tutorials_base = 'tutorial/notebooks/'
@@ -79,7 +79,7 @@ setup(name='pynq-hls',
       url='https://github.com/drichmond/PYNQ-HLS/',
       license='BSD-3',
       data_files = data_files,
-      packages=['pynqhls', 'pynqhls.stream', 'pynqhls.io', 'pynqhls.shared'],
+      packages=['pynqhls', 'pynqhls.stream', 'pynqhls.io', 'pynqhls.sharedmem'],
       package_data={'':['*.bit', '*.tcl']},
       install_requires=['pynq'],
       dependency_links=['http://github.com/xilinx/PYNQ.git@v2.0#egg=pynq'],

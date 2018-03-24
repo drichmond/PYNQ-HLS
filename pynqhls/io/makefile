@@ -29,10 +29,19 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-DESIGN=shared
-all:
-	vivado -mode batch -source build.tcl -tclargs $(DESIGN) single
+IP_PATH=ip
+DESIGN=io
+IPS=ctrlloop
+
+all: $(DESIGN)
 
 clean:
-	rm -rf $(DESIGN) *.jou *.log *.str
+	$(foreach IP,$(IPS), $(MAKE) -C $(IP_PATH)/$(IP) clean;)
+	rm -rf $(DESIGN) *.jou *.log
+
+$(DESIGN): $(IPS) vivado/top.v vivado/constraints/top.xdc
+	vivado -mode batch -source build.tcl -tclargs $(DESIGN) single
+
+$(IPS):
+	$(MAKE) -C $(IP_PATH)/$@ $@
 

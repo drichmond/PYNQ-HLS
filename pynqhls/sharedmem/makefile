@@ -30,8 +30,8 @@
 #
 ###############################################################################
 IP_PATH=ip
-DESIGN=stream
-IPS=filt1d
+DESIGN=sharedmem
+IPS=mmult
 
 all: $(DESIGN)
 

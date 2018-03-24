@@ -8,7 +8,7 @@
 //                  
 //     BT - matb_t
 //         A 2-dimensional array of matb_t values to be multiplied
-//         BT is the transposes of B
+//         BT is the transpose of B
 //
 //     C - matc_t
 //         Matrix multiply output definition
@@ -20,14 +20,16 @@ void mmult(const mata_t A [A_ROWS][A_COLS],
 /* Define a new AXI-Lite bus named CTRL for offset arguments, and HLS
    Status/Control registers (return)*/
 #pragma HLS INTERFACE s_axilite port=return bundle=CTRL
-/* Define a new AXI4 Master bus named DATA for memory ports A, B, and BT, and HLS
-   Status/Control registers (return)*/
+/* Define a new AXI4 Master bus named DATA for memory ports A, BT, and C.  The
+   argument offset=slave specifies that the the pointers (offset) of A, BT, and
+   C can be set using register writes in the CTRL axi slave port */
 #pragma HLS INTERFACE m_axi port=A offset=slave bundle=DATA
 #pragma HLS INTERFACE m_axi port=BT offset=slave bundle=DATA
 #pragma HLS INTERFACE m_axi port=C offset=slave bundle=DATA
 
-	// Use the log2 functions in mmult.hpp to determine the correct size of
-	// the index variables i, j, and k.
+	// We use the log2 functions in mmult.hpp to determine the correct size
+	// of the index variables i, j, and k. Typically, vivado will size these
+	// correctly
 	ap_uint<pynq::log2(A_ROWS) + 1> i = 0;
 	ap_uint<pynq::log2(B_COLS) + 1> j = 0;
 	ap_uint<pynq::log2(A_COLS) + 1> k = 0;
