@@ -7,19 +7,19 @@
 #define REG_SPACE_SIZE 128
 
 
-/* delay_util_ms - Delay for a set number of milliseconds. The length of the
+/* delay_until_ms - Delay for a set number of milliseconds. The length of the
    delay is equal to the frequency of the overlay (F_OVERLAY_HZ) times the
    duration in milliseconds (MILLISECONDS), divided by the number of
    milliseconds in a second (MSEC_PER_SEC)
  */
-template <unsigned int MILLISECONDS, unsigned int F_OVERLAY_HZ = 50000000ULL>
+template <unsigned long long MILLISECONDS, unsigned long long F_OVERLAY_HZ = 50000000ULL>
 void delay_until_ms(){
 #define MSEC_PER_SEC 1000
 #pragma HLS INLINE
 #pragma HLS PROTOCOL floating
 	volatile char dummy;
-	ap_uint<64> ctr;
-	ap_uint<64> cyc = (F_OVERLAY_HZ * MILLISECONDS / MSEC_PER_SEC);
+	unsigned long long ctr;
+	unsigned long long cyc = (F_OVERLAY_HZ * MILLISECONDS / MSEC_PER_SEC);
 	for (ctr = 0; ctr < cyc; ++ctr){
 		dummy = dummy;
 	}
