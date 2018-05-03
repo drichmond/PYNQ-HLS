@@ -69,7 +69,6 @@ for tut in tutorials:
     data_files.append((nbdest, notebooks))
     data_files.append((picdest, pictures))
 
-print(data_files)
 setup(name='pynq-hls',
       version='0.1',
       description="A simple package describing how to create a PYNQ\
