@@ -169,6 +169,9 @@ proc create_root_design { parentCell } {
   set pmodJB_data_out [ create_bd_port -dir O -from 7 -to 0 pmodJB_data_out ]
   set pmodJB_tri_out [ create_bd_port -dir O -from 7 -to 0 pmodJB_tri_out ]
 
+  # Create instance: ctrlLoop, and set properties
+  set ctrlLoop [ create_bd_cell -type ip -vlnv UCSD:hls:ctrlloop:1.0 ctrlLoop ]
+
   # Create instance: hlsInterconnect, and set properties
   set hlsInterconnect [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 hlsInterconnect ]
   set_property -dict [ list \
@@ -177,16 +180,6 @@ CONFIG.NUM_MI {1} \
 
   # Create instance: hlsUartLite, and set properties
   set hlsUartLite [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uartlite:2.0 hlsUartLite ]
-
-  # Create instance: ctrlLoop, and set properties
-  set ctrlLoop [ create_bd_cell -type ip -vlnv UCSD:hls:ctrlloop:1.0 ctrlLoop ]
-
-  # Create instance: plInterconnect, and set properties
-  set plInterconnect [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 plInterconnect ]
-  set_property -dict [ list \
-CONFIG.NUM_MI {1} \
-CONFIG.NUM_SI {1} \
- ] $plInterconnect
 
   # Create instance: plIntrController, and set properties
   set plIntrController [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc:4.1 plIntrController ]
@@ -1096,19 +1089,17 @@ CONFIG.CONST_WIDTH {8} \
 
   # Create interface connections
   connect_bd_intf_net -intf_net S00_AXI_1 [get_bd_intf_pins processing_system7_0/M_AXI_GP0] [get_bd_intf_pins psInterconnect/S00_AXI]
+  connect_bd_intf_net -intf_net ctrlLoop_m_axi_IOMEM [get_bd_intf_pins ctrlLoop/m_axi_IOMEM] [get_bd_intf_pins hlsInterconnect/S00_AXI]
   connect_bd_intf_net -intf_net hlsInterconnect_M00_AXI [get_bd_intf_pins hlsInterconnect/M00_AXI] [get_bd_intf_pins hlsUartLite/S_AXI]
-  connect_bd_intf_net -intf_net ctrlLoop_m_axi_IOMEM [get_bd_intf_pins hlsInterconnect/S00_AXI] [get_bd_intf_pins ctrlLoop/m_axi_IOMEM]
-  connect_bd_intf_net -intf_net plInterconnect_M00_AXI [get_bd_intf_pins plInterconnect/M00_AXI] [get_bd_intf_pins processing_system7_0/S_AXI_HP0]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
   connect_bd_intf_net -intf_net psInterconnect_M00_AXI [get_bd_intf_pins ctrlLoop/s_axi_CTRL] [get_bd_intf_pins psInterconnect/M00_AXI]
   connect_bd_intf_net -intf_net psInterconnect_M01_AXI [get_bd_intf_pins plIntrController/s_axi] [get_bd_intf_pins psInterconnect/M01_AXI]
 
   # Create port connections
-  connect_bd_net -net FCLK_CLK0 [get_bd_pins hlsInterconnect/ACLK] [get_bd_pins hlsInterconnect/M00_ACLK] [get_bd_pins hlsInterconnect/S00_ACLK] [get_bd_pins hlsUartLite/s_axi_aclk] [get_bd_pins ctrlLoop/ap_clk] [get_bd_pins plInterconnect/ACLK] [get_bd_pins plInterconnect/M00_ACLK] [get_bd_pins plInterconnect/S00_ACLK] [get_bd_pins plIntrController/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK] [get_bd_pins psInterconnect/ACLK] [get_bd_pins psInterconnect/M00_ACLK] [get_bd_pins psInterconnect/M01_ACLK] [get_bd_pins psInterconnect/S00_ACLK] [get_bd_pins userReset/slowest_sync_clk]
-  connect_bd_net -net FCLK_CLK1 [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/S_AXI_HP2_ACLK]
-  connect_bd_net -net S00_ARESETN_1 [get_bd_pins hlsInterconnect/ARESETN] [get_bd_pins plInterconnect/ARESETN] [get_bd_pins psInterconnect/ARESETN] [get_bd_pins userReset/interconnect_aresetn]
-  connect_bd_net -net S00_ARESETN_2 [get_bd_pins hlsInterconnect/M00_ARESETN] [get_bd_pins hlsInterconnect/S00_ARESETN] [get_bd_pins hlsUartLite/s_axi_aresetn] [get_bd_pins ctrlLoop/ap_rst_n] [get_bd_pins plInterconnect/M00_ARESETN] [get_bd_pins plInterconnect/S00_ARESETN] [get_bd_pins plIntrController/s_axi_aresetn] [get_bd_pins psInterconnect/M00_ARESETN] [get_bd_pins psInterconnect/M01_ARESETN] [get_bd_pins psInterconnect/S00_ARESETN] [get_bd_pins userReset/peripheral_aresetn]
+  connect_bd_net -net FCLK_CLK0 [get_bd_pins ctrlLoop/ap_clk] [get_bd_pins hlsInterconnect/ACLK] [get_bd_pins hlsInterconnect/M00_ACLK] [get_bd_pins hlsInterconnect/S00_ACLK] [get_bd_pins hlsUartLite/s_axi_aclk] [get_bd_pins plIntrController/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP2_ACLK] [get_bd_pins psInterconnect/ACLK] [get_bd_pins psInterconnect/M00_ACLK] [get_bd_pins psInterconnect/M01_ACLK] [get_bd_pins psInterconnect/S00_ACLK] [get_bd_pins userReset/slowest_sync_clk]
+  connect_bd_net -net S00_ARESETN_1 [get_bd_pins hlsInterconnect/ARESETN] [get_bd_pins psInterconnect/ARESETN] [get_bd_pins userReset/interconnect_aresetn]
+  connect_bd_net -net S00_ARESETN_2 [get_bd_pins ctrlLoop/ap_rst_n] [get_bd_pins hlsInterconnect/M00_ARESETN] [get_bd_pins hlsInterconnect/S00_ARESETN] [get_bd_pins hlsUartLite/s_axi_aresetn] [get_bd_pins plIntrController/s_axi_aresetn] [get_bd_pins psInterconnect/M00_ARESETN] [get_bd_pins psInterconnect/M01_ARESETN] [get_bd_pins psInterconnect/S00_ARESETN] [get_bd_pins userReset/peripheral_aresetn]
   connect_bd_net -net axi_intc_0_irq [get_bd_pins plIntrController/irq] [get_bd_pins processing_system7_0/IRQ_F2P]
   connect_bd_net -net axi_uartlite_0_tx [get_bd_pins hlsUartLite/tx] [get_bd_pins pmodConcat/In2]
   connect_bd_net -net ctrlLoop_interrupt [get_bd_pins ctrlLoop/interrupt] [get_bd_pins plIrqConcat/In0]
