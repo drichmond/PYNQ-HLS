@@ -1069,8 +1069,7 @@ CONFIG.NUM_MI {2} \
   connect_bd_intf_net -intf_net psInterconnect_M01_AXI [get_bd_intf_pins plIntrController/s_axi] [get_bd_intf_pins psInterconnect/M01_AXI]
 
   # Create port connections
-  connect_bd_net -net FCLK_CLK0 [get_bd_ports pmodJA_tri_out] [get_bd_pins mmultCore/ap_clk] [get_bd_pins plInterconnect/ACLK] [get_bd_pins plInterconnect/M00_ACLK] [get_bd_pins plInterconnect/S00_ACLK] [get_bd_pins plIntrController/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK] [get_bd_pins psInterconnect/ACLK] [get_bd_pins psInterconnect/M00_ACLK] [get_bd_pins psInterconnect/M01_ACLK] [get_bd_pins psInterconnect/S00_ACLK] [get_bd_pins userReset/slowest_sync_clk]
-  connect_bd_net -net FCLK_CLK1 [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/S_AXI_HP2_ACLK]
+  connect_bd_net -net FCLK_CLK0 [get_bd_ports pmodJA_tri_out] [get_bd_pins mmultCore/ap_clk] [get_bd_pins plInterconnect/ACLK] [get_bd_pins plInterconnect/M00_ACLK] [get_bd_pins plInterconnect/S00_ACLK] [get_bd_pins plIntrController/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP2_ACLK] [get_bd_pins psInterconnect/ACLK] [get_bd_pins psInterconnect/M00_ACLK] [get_bd_pins psInterconnect/M01_ACLK] [get_bd_pins psInterconnect/S00_ACLK] [get_bd_pins userReset/slowest_sync_clk]
   connect_bd_net -net S00_ARESETN_1 [get_bd_pins plInterconnect/ARESETN] [get_bd_pins psInterconnect/ARESETN] [get_bd_pins userReset/interconnect_aresetn]
   connect_bd_net -net S00_ARESETN_2 [get_bd_pins mmultCore/ap_rst_n] [get_bd_pins plInterconnect/M00_ARESETN] [get_bd_pins plInterconnect/S00_ARESETN] [get_bd_pins plIntrController/s_axi_aresetn] [get_bd_pins psInterconnect/M00_ARESETN] [get_bd_pins psInterconnect/M01_ARESETN] [get_bd_pins psInterconnect/S00_ARESETN] [get_bd_pins userReset/peripheral_aresetn]
   connect_bd_net -net axi_intc_0_irq [get_bd_pins plIntrController/irq] [get_bd_pins processing_system7_0/IRQ_F2P]
@@ -1098,6 +1097,4 @@ CONFIG.NUM_MI {2} \
 
 create_root_design ""
 
-
-common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 
