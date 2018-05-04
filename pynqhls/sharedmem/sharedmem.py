@@ -30,7 +30,7 @@ class sharedmemOverlay(Overlay):
     __MMULT_ADDR_BT_DATA = 0x18
     __MMULT_ADDR_C_DATA = 0x20
 
-    __MMULT_A_SHAPE = (100, 100) # Does Numpy have a Size class?
+    __MMULT_A_SHAPE = (100, 100)
     __MMULT_BT_SHAPE = (100, 100)
     __MMULT_C_SHAPE = (100, 100)
     __MMULT_A_SIZE = __MMULT_A_SHAPE[0] * __MMULT_A_SHAPE[1]
@@ -162,4 +162,7 @@ class sharedmemOverlay(Overlay):
         C = np.zeros((A.shape[0], B.shape[1]), np.int32)
         # Transform C into a Numpy Array
         C[:A.shape[0], :B.shape[1]] = c[:A.shape[0], :B.shape[1]]
+        a.freebuffer()
+        b.freebuffer()
+        c.freebuffer()
         return C
