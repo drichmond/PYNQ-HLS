@@ -163,6 +163,6 @@ class sharedmemOverlay(Overlay):
         # Transform C into a Numpy Array
         C[:A.shape[0], :B.shape[1]] = c[:A.shape[0], :B.shape[1]]
         a.freebuffer()
-        b.freebuffer()
+        bt.freebuffer()
         c.freebuffer()
         return C
