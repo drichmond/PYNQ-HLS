@@ -18,6 +18,19 @@ variable script_folder
 set script_folder [_tcl::get_script_folder]
 
 ################################################################
+# Check if script is running in correct Vivado version.
+################################################################
+set scripts_vivado_version 2017.1
+set current_vivado_version [version -short]
+
+if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
+   puts ""
+   catch {common::send_msg_id "BD_TCL-109" "ERROR" "This script was generated using Vivado <$scripts_vivado_version> and is being run in <$current_vivado_version> of Vivado. Please run the script in Vivado <$scripts_vivado_version> then open the design in Vivado <$current_vivado_version>. Upgrade the design by running \"Tools => Report => Report IP Status...\", then run write_bd_tcl to create an updated script."}
+
+   return 1
+}
+
+################################################################
 # START
 ################################################################
 
@@ -170,6 +183,7 @@ CONFIG.NUM_MI {1} \
   set_property -dict [ list \
 CONFIG.c_include_sg {0} \
 CONFIG.c_sg_include_stscntrl_strm {0} \
+CONFIG.c_sg_length_width {23} \
 CONFIG.c_single_interface {1} \
  ] $hlsDmaEngine
 
@@ -1069,7 +1083,7 @@ CONFIG.PCW_WDT_WDT_IO {<Select>} \
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
 
   # Create port connections
-  connect_bd_net -net FCLK_CLK0 [get_bd_pins dmaInterconnect/ACLK] [get_bd_pins dmaInterconnect/M00_ACLK] [get_bd_pins dmaInterconnect/S00_ACLK] [get_bd_pins filt1d/ap_clk] [get_bd_pins hlsDmaEngine/m_axi_mm2s_aclk] [get_bd_pins hlsDmaEngine/m_axi_s2mm_aclk] [get_bd_pins hlsDmaEngine/s_axi_lite_aclk] [get_bd_pins mmioInterconnect/ACLK] [get_bd_pins mmioInterconnect/M00_ACLK] [get_bd_pins mmioInterconnect/M01_ACLK] [get_bd_pins mmioInterconnect/M02_ACLK] [get_bd_pins mmioInterconnect/S00_ACLK] [get_bd_pins plInterruptController/s_axi_aclk] [get_bd_pins porReset/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK] [get_bd_pins userReset/slowest_sync_clk]
+  connect_bd_net -net FCLK_CLK0 [get_bd_pins dmaInterconnect/ACLK] [get_bd_pins dmaInterconnect/M00_ACLK] [get_bd_pins dmaInterconnect/S00_ACLK] [get_bd_pins filt1d/ap_clk] [get_bd_pins hlsDmaEngine/m_axi_mm2s_aclk] [get_bd_pins hlsDmaEngine/m_axi_s2mm_aclk] [get_bd_pins hlsDmaEngine/s_axi_lite_aclk] [get_bd_pins mmioInterconnect/ACLK] [get_bd_pins mmioInterconnect/M00_ACLK] [get_bd_pins mmioInterconnect/M01_ACLK] [get_bd_pins mmioInterconnect/M02_ACLK] [get_bd_pins mmioInterconnect/S00_ACLK] [get_bd_pins plInterruptController/s_axi_aclk] [get_bd_pins porReset/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK] [get_bd_pins processing_system7_0/S_AXI_HP2_ACLK] [get_bd_pins userReset/slowest_sync_clk]
   connect_bd_net -net filt1d_0_interrupt [get_bd_pins filt1d/interrupt] [get_bd_pins irqConcat/In2]
   connect_bd_net -net hlsDmaEngine_mm2s_introut [get_bd_pins hlsDmaEngine/mm2s_introut] [get_bd_pins irqConcat/In0]
   connect_bd_net -net hlsDmaEngine_s2mm_introut [get_bd_pins hlsDmaEngine/s2mm_introut] [get_bd_pins irqConcat/In1]
@@ -1077,7 +1091,6 @@ CONFIG.PCW_WDT_WDT_IO {<Select>} \
   connect_bd_net -net plInterruptController_irq [get_bd_pins plInterruptController/irq] [get_bd_pins processing_system7_0/IRQ_F2P]
   connect_bd_net -net porReset_interconnect_aresetn [get_bd_pins dmaInterconnect/ARESETN] [get_bd_pins mmioInterconnect/ARESETN] [get_bd_pins porReset/interconnect_aresetn]
   connect_bd_net -net porReset_peripheral_aresetn [get_bd_pins dmaInterconnect/M00_ARESETN] [get_bd_pins dmaInterconnect/S00_ARESETN] [get_bd_pins hlsDmaEngine/axi_resetn] [get_bd_pins mmioInterconnect/M01_ARESETN] [get_bd_pins mmioInterconnect/M02_ARESETN] [get_bd_pins mmioInterconnect/S00_ARESETN] [get_bd_pins plInterruptController/s_axi_aresetn] [get_bd_pins porReset/peripheral_aresetn]
-  connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/S_AXI_HP2_ACLK]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins porReset/ext_reset_in] [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins userReset/aux_reset_in]
   connect_bd_net -net processing_system7_0_GPIO_O [get_bd_pins processing_system7_0/GPIO_O] [get_bd_pins userReset/ext_reset_in]
   connect_bd_net -net userReset_peripheral_aresetn [get_bd_pins filt1d/ap_rst_n] [get_bd_pins mmioInterconnect/M00_ARESETN] [get_bd_pins userReset/peripheral_aresetn]
